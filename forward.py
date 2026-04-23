@@ -1,6 +1,7 @@
 import re
 
 
+
 def check_condition(cond, facts):
     var, op, value = cond
 
@@ -8,13 +9,17 @@ def check_condition(cond, facts):
         return var in facts
 
     if op == "is":
-        return f"{var} is {value}".upper() in facts
+        return f"{var} IS {value}" in facts
 
+    # comparison
     for fact in facts:
-        match = re.match(rf"{var}\s*(>|<|=)\s*(\d+)", fact)
+        match = re.match(r"(\w+)\s*(>|<|=)\s*(\d+)", fact)
         if match:
             f_var, f_op, f_val = match.groups()
             f_val = int(f_val)
+
+            if f_var != var:
+                continue
 
             if op == ">" and f_val > value:
                 return True
@@ -24,7 +29,6 @@ def check_condition(cond, facts):
                 return True
 
     return False
-
 
 def evaluate_conditions(conditions, operator, facts):
     results = [check_condition(cond, facts) for cond in conditions]
@@ -41,9 +45,13 @@ def forward_chaining(facts, rules):
     inferred = set(facts)
     changed = True
 
+    cycle = 1
+
     while changed:
+        print(f"\n=== Cycle {cycle} ===")
+        print("Current facts:", sorted(inferred))
+
         changed = False
-        print("Current facts:", inferred)
 
         for rule in rules:
             conditions = rule["conditions"]
@@ -54,5 +62,7 @@ def forward_chaining(facts, rules):
                 print(f"Applying rule -> {result}")
                 inferred.add(result)
                 changed = True
+
+        cycle += 1
 
     return inferred

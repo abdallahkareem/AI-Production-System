@@ -1,3 +1,4 @@
+
 import re
 
 def load_facts(file_path):
@@ -10,10 +11,9 @@ def load_facts(file_path):
             if line == "":
                 continue
 
-            facts.add(line)
+            facts.add(line.upper())
 
     return facts
-
 
 
 def parse_single_condition(cond):
@@ -23,15 +23,15 @@ def parse_single_condition(cond):
     match = re.match(r"(\w+)\s*(>|<|=)\s*(\d+)", cond)
     if match:
         var, op, value = match.groups()
-        return (var, op, int(value))
+        return (var.upper(), op, int(value))
 
     # case 2: "is"
     if " is " in cond:
         var, value = cond.split(" is ")
-        return (var.strip(), "is", value.strip())
+        return (var.strip().upper(), "is", value.strip().upper())
 
     # case 3: single fact
-    return (cond, "EXISTS", True)
+    return (cond.upper(), "EXISTS", True)
 
 
 def parse_conditions(left):
